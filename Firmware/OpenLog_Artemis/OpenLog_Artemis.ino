@@ -103,7 +103,7 @@
     The work-around is to use Serial1 in place of serialLog and then to manually force UART1 to use pins 12 and 13
     We need a work-around anyway because if pins 12 or 13 have been used as analog inputs, Serial1.begin does not re-configure them for UART TX and RX
   (in progress) Reduce sleep current as much as possible. v1.2.1 achieved ~110uA. With v2.1.0 the draw is more like 260uA...
-
+  (in progress) Adding BNO08x support
   (in progress) Update to Apollo3 v2.2.0 - FIRMWARE_VERSION_MAJOR = 2; FIRMWARE_VERSION_MINOR = 1.
   (done) Add a fix for issue #109 - check if a BME280 is connected before calling multiplexerBegin: https://github.com/sparkfun/OpenLog_Artemis/issues/109
   (done) Correct issue #104. enableSD was redundant. The microSD power always needs to be on if there is a card inserted, otherwise the card pulls
@@ -318,7 +318,7 @@ icm_20948_DMP_data_t dmpData; // Global storage for the DMP data - extracted fro
 #include "SparkFun_MMC5983MA_Arduino_Library.h" //Click here to get the library: http://librarymanager/All#SparkFun_MMC5983MA
 #include "SparkFun_ADS1015_Arduino_Library.h" //Click here to get the library: http://librarymanager/All#SparkFun_ADS1015
 #include "SparkFun_KX13X.h" //Click here to get the library: http://librarymanager/All#SparkFun_KX13X
-
+#include "Adafruit_BNO08x.h" //Click here to get the library: http://librarymanager/All#Adafruit_BNO08x
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 //Global variables

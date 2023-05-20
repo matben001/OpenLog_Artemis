@@ -174,7 +174,7 @@ _PROTOTYPE(void purgeline , (void));
 _PROTOTYPE(void canit , (void));
 
 //void zperr();
-#define zperr(a, ... )
+//#define zperr(a, ... )
 
 _PROTOTYPE(int sendzsinit , (void));
 _PROTOTYPE(int zsendfile , (char *buf , int blen ));
