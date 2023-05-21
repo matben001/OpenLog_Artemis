@@ -293,7 +293,7 @@ bool addDevice(deviceType_e deviceType, uint8_t address, uint8_t muxAddress, uin
       break;
     case DEVICE_BNO08x:
       {
-        temp->classPtr = new Adafruit_BNO08x;
+        temp->classPtr = new BNO080;
         temp->configPtr = new struct_BNO08x;
       }
       break;
@@ -614,11 +614,11 @@ bool beginQwiicDevices()
         break;
       case DEVICE_BNO08x:
         {
-          Adafruit_BNO08x *tempDevice = (Adafruit_BNO08x *)temp->classPtr;
+          BNO080 *tempDevice = (BNO080 *)temp->classPtr;
           struct_BNO08x *nodeSetting = (struct_BNO08x *)temp->configPtr; //Create a local pointer that points to same spot as node does
           if (nodeSetting->powerOnDelayMillis > 1000) qwiicPowerOnDelayMillis = nodeSetting->powerOnDelayMillis; // Increase qwiicPowerOnDelayMillis if required
           //
-          if (tempDevice->begin_I2C(temp->address, &qwiic)) //Wire port, address
+          if (tempDevice->begin()) //Wire port, address
             temp->online = true;
         }
         break;
@@ -999,10 +999,10 @@ void configureDevice(node * temp)
     case DEVICE_BNO08x:
       {
         //todo: add configuration options
-        Adafruit_BNO08x *sensor = (Adafruit_BNO08x *)temp->classPtr;
+        BNO080 *sensor = (BNO080 *)temp->classPtr;
         struct_BNO08x *sensorSetting = (struct_BNO08x *)temp->configPtr;
 
-        sensor->enableReport(SH2_ARVR_STABILIZED_RV, 5000);
+        sensor->enableRotationVector(50);
       }
     default:
       SerialPrintf3("configureDevice: Unknown device type %d: %s\r\n", deviceType, getDeviceName((deviceType_e)deviceType));
@@ -1612,14 +1612,20 @@ deviceType_e testDevice(uint8_t i2cAddress, uint8_t muxAddress, uint8_t portNumb
     case 0x4A:
     case 0x4B:
       {
-        Adafruit_BNO08x sensor;
+        BNO080 sensor;
         //print to serial monitor if the sensor is found
         //i2cAddress, &qwiic
-        if (sensor.begin_I2C(i2cAddress, &qwiic)==true)
+        /*if (sensor.begin_I2C(i2cAddress, &qwiic)==true)
         {
           Serial.println("BNO08x  found");
           return (DEVICE_BNO08x);
-        }
+        }*/
+        if (sensor.begin() == false)
+          {
+            Serial.println(F("BNO080 not detected at default I2C address. Check your jumpers and the hookup guide. Freezing..."));
+            while (1)
+              ;
+          }
         
           
 
