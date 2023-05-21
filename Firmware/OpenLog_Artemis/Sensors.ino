@@ -1277,6 +1277,29 @@ void gatherDeviceValues(char * sdOutputData, size_t lenData)
               }
             }
           }
+        case DEVICE_BNO08x:
+          {
+            Adafruit_BNO08x *nodeDevice = (Adafruit_BNO08x *)temp->classPtr;
+            struct_BNO08x *nodeSetting = (struct_BNO08x *)temp->configPtr;
+            sh2_SensorValue_t sensorValue;
+            if (nodeSetting->log == true)
+            {
+              //fix/add stuff below
+              if ((nodeSetting->logQuat) || (nodeSetting->logAccel) || (nodeSetting->logLinAccel) || (nodeSetting->logGyro) || (nodeSetting->logFastGyro) ||
+                (nodeSetting->logMag) || (nodeSetting->logEuler))
+              {
+                if (nodeDevice->getSensorEvent(&sensorValue)) // Check if new data is available (dangerous? what happens if data is not available?)
+                {
+                  if (nodeSetting->logQuat)
+                  {
+                    sprintf(tempData, "%.02f,%.02f,%.02f,%.02f,%d,", sensorValue.un.arvrStabilizedRV.real, sensorValue.un.arvrStabilizedRV.i,
+                      sensorValue.un.arvrStabilizedRV.j, sensorValue.un.arvrStabilizedRV.k, sensorValue.status);
+                    strcat(sdOutputData, tempData);
+                  }
+                }
+              }
+            }
+          }
           break;
         default:
           SerialPrintf2("printDeviceValue unknown device type: %s\r\n", getDeviceName(temp->deviceType));

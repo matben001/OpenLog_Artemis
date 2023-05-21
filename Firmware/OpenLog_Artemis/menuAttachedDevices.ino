@@ -369,6 +369,9 @@ void menuAttachedDevices()
           case DEVICE_ADS1015:
             SerialPrintf3("%s ADS1015 ADC %s\r\n", strDeviceMenu, strAddress);
             break;
+          case DEVICE_BNO08x:
+            SerialPrintf3("%s BNO08x IMU %s\r\n", strDeviceMenu, strAddress);
+            break;
           default:
             SerialPrintf2("Unknown device type %d in menuAttachedDevices\r\n", temp->deviceType);
             break;
@@ -3183,4 +3186,39 @@ void menuConfigure_ADS1015(void *configPtr)
     else
       printUnknown(incoming);
   }
+}
+void menuConfigure_BNO08x(void *configPtr)
+{
+  struct_BNO08x *sensorSetting = (struct_BNO08x *)configPtr;
+
+  while (1)
+  {
+    SerialPrintln(F(""));
+    SerialPrintln(F("Menu: Configure BNO08x IMU"));
+
+    SerialPrint(F("1) Sensor Logging: "));
+    if (sensorSetting->log == true) SerialPrintln(F("Enabled"));
+    else SerialPrintln(F("Disabled"));
+    
+    SerialPrint(F("2) Log Accelerometer: "));
+    if (sensorSetting->logAccel == true) SerialPrintln(F("Enabled"));
+    else SerialPrintln(F("Disabled"));
+    
+    SerialPrint(F("3) Log Gyro: "));
+    if (sensorSetting->logGyro == true) SerialPrintln(F("Enabled"));
+    else SerialPrintln(F("Disabled"));
+    
+    SerialPrint(F("4) Log Magnetometer: "));
+    if (sensorSetting->logMag == true) SerialPrintln(F("Enabled"));
+    else SerialPrintln(F("Disabled"));
+    
+    SerialPrint(F("5) Log Quaternion: "));
+    if (sensorSetting->logQuat == true) SerialPrintln(F("Enabled"));
+    else SerialPrintln(F("Disabled"));
+    
+    
+  }
+  Serial.println(F("x) Exit"));
+
+  int incoming = getNumber(menuTimeout);
 }

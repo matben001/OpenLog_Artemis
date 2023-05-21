@@ -291,6 +291,12 @@ bool addDevice(deviceType_e deviceType, uint8_t address, uint8_t muxAddress, uin
         temp->configPtr = new struct_ADS1015;
       }
       break;
+    case DEVICE_BNO08x:
+      {
+        temp->classPtr = new Adafruit_BNO08x;
+        temp->configPtr = new struct_BNO08x;
+      }
+      break;
     default:
       SerialPrintf2("addDevice Device type not found: %d\r\n", deviceType);
       break;
@@ -603,6 +609,16 @@ bool beginQwiicDevices()
           struct_ADS1015 *nodeSetting = (struct_ADS1015 *)temp->configPtr; //Create a local pointer that points to same spot as node does
           if (nodeSetting->powerOnDelayMillis > qwiicPowerOnDelayMillis) qwiicPowerOnDelayMillis = nodeSetting->powerOnDelayMillis; // Increase qwiicPowerOnDelayMillis if required
           if (tempDevice->begin(temp->address, qwiic)) //address, Wire port
+            temp->online = true;
+        }
+        break;
+      case DEVICE_BNO08x:
+        {
+          Adafruit_BNO08x *tempDevice = (Adafruit_BNO08x *)temp->classPtr;
+          struct_BNO08x *nodeSetting = (struct_BNO08x *)temp->configPtr; //Create a local pointer that points to same spot as node does
+          if (nodeSetting->powerOnDelayMillis > 1000) qwiicPowerOnDelayMillis = nodeSetting->powerOnDelayMillis; // Increase qwiicPowerOnDelayMillis if required
+          //
+          if (tempDevice->begin_I2C(temp->address, &qwiic)) //Wire port, address
             temp->online = true;
         }
         break;
@@ -980,6 +996,14 @@ void configureDevice(node * temp)
         sensor->useConversionReady(true);
       }
       break;
+    case DEVICE_BNO08x:
+      {
+        //todo: add configuration options
+        Adafruit_BNO08x *sensor = (Adafruit_BNO08x *)temp->classPtr;
+        struct_BNO08x *sensorSetting = (struct_BNO08x *)temp->configPtr;
+
+        sensor->enableReport(SH2_ARVR_STABILIZED_RV, 5000);
+      }
     default:
       SerialPrintf3("configureDevice: Unknown device type %d: %s\r\n", deviceType, getDeviceName((deviceType_e)deviceType));
       break;
@@ -1100,6 +1124,9 @@ FunctionPointer getConfigFunctionPtr(uint8_t nodeNumber)
       break;
     case DEVICE_ADS1015:
       ptr = (FunctionPointer)menuConfigure_ADS1015;
+      break;
+    case DEVICE_BNO08x:
+      ptr = (FunctionPointer)menuConfigure_BNO08x;
       break;
     default:
       SerialPrintln(F("getConfigFunctionPtr: Unknown device type"));
@@ -1258,6 +1285,8 @@ void swap(struct node * a, struct node * b)
 #define ADR_MS5837 0x76
 //#define ADR_MS8607 0x76 //Pressure portion of the MS8607 sensor. We'll catch the 0x40 first
 #define ADR_BME280 0x77 //Alternates: 0x76
+#define ADR_BNO08x 0x4A //Alternate: 0x4B
+
 
 //Given an address, returns the device type if it responds as we would expect
 //Does not test for multiplexers. See testMuxDevice for dedicated mux testing.
@@ -1390,20 +1419,20 @@ deviceType_e testDevice(uint8_t i2cAddress, uint8_t muxAddress, uint8_t portNumb
       break;
     case 0x48:
     case 0x49:
-    case 0x4A:
-    case 0x4B:
-      {
-        //Confidence: High - Checks 16 bit ID
-        TMP117 sensor;
-        if (sensor.begin(i2cAddress, qwiic) == true) //Address, Wire port
-          return (DEVICE_TEMPERATURE_TMP117);
+    //case 0x4A:
+    //case 0x4B:
+    // {
+    //   //Confidence: High - Checks 16 bit ID
+    //   TMP117 sensor;
+    //   if (sensor.begin(i2cAddress, qwiic) == true) //Address, Wire port
+    //     return (DEVICE_TEMPERATURE_TMP117);
 
-        //Confidence: Low - only does a simple isConnected
-        ADS1015 sensor1;
-        if (sensor1.begin(i2cAddress, qwiic) == true) //Address, Wire port
-          return (DEVICE_ADS1015);
-      }
-      break;
+    //   //Confidence: Low - only does a simple isConnected
+    //   ADS1015 sensor1;
+    //   if (sensor1.begin(i2cAddress, qwiic) == true) //Address, Wire port
+    //     return (DEVICE_ADS1015);
+    // }
+    // break;
     case 0x55:
       {
         if (settings.identifyBioSensorHubs == true)
@@ -1578,6 +1607,22 @@ deviceType_e testDevice(uint8_t i2cAddress, uint8_t muxAddress, uint8_t portNumb
         sensor.setI2CAddress(i2cAddress);
         if (sensor.beginI2C(qwiic) == true) //Wire port
           return (DEVICE_PHT_BME280);
+      }
+      break;
+    case 0x4A:
+    case 0x4B:
+      {
+        Adafruit_BNO08x sensor;
+        //print to serial monitor if the sensor is found
+        //i2cAddress, &qwiic
+        if (sensor.begin_I2C(i2cAddress, &qwiic)==true)
+        {
+          Serial.println("BNO08x  found");
+          return (DEVICE_BNO08x);
+        }
+        
+          
+
       }
       break;
     default:
@@ -1864,6 +1909,9 @@ const char* getDeviceName(deviceType_e deviceNumber)
       break;
     case DEVICE_ADS1015:
       return "ADC-ADS1015";
+      break;
+    case DEVICE_BNO08x:
+      return "IMU-BNO08x";
       break;
 
     case DEVICE_UNKNOWN_DEVICE:

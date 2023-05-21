@@ -32,6 +32,7 @@ typedef enum
   DEVICE_MMC5983MA,
   DEVICE_KX134,
   DEVICE_ADS1015,
+  DEVICE_BNO08x,
 
   DEVICE_TOTAL_DEVICES, //Marks the end, used to iterate loops
   DEVICE_UNKNOWN_DEVICE,
@@ -461,6 +462,17 @@ struct struct_ADS1015 {
   bool gain4 = false;
   bool gain8 = false;
   bool gain16 = false;
+  unsigned long powerOnDelayMillis = minimumQwiicPowerOnDelay; // Wait for at least this many millis before communicating with this device. Increase if required!
+};
+struct struct_BNO08x {
+  bool log = true;
+  bool logQuat = true;
+  bool logAccel = true;
+  bool logLinAccel = true;
+  bool logGyro = true;
+  bool logFastGyro = true;
+  bool logMag = true;  
+  bool logEuler = true;
   unsigned long powerOnDelayMillis = minimumQwiicPowerOnDelay; // Wait for at least this many millis before communicating with this device. Increase if required!
 };
 
