@@ -473,7 +473,7 @@ struct struct_BNO08x {
   bool logFastGyro = true;
   bool logMag = true;  
   bool logEuler = true;
-  unsigned long powerOnDelayMillis = minimumQwiicPowerOnDelay; // Wait for at least this many millis before communicating with this device. Increase if required!
+  unsigned long powerOnDelayMillis = 3000; // Wait for at least this many millis before communicating with this device. Increase if required!
 };
 
 
@@ -507,7 +507,7 @@ struct struct_settings {
   int dateStyle = 0; // 0 : mm/dd/yyyy, 1 : dd/mm/yyyy, 2 : yyyy/mm/dd, 3 : ISO8601 (date and time)
   bool hour24Style = true;
   int  serialTerminalBaudRate = 115200;
-  int  serialLogBaudRate = 9600;
+  int  serialLogBaudRate = 115200;
   bool showHelperText = true;
   bool logA11 = false;
   bool logA12 = false;
@@ -522,7 +522,7 @@ struct struct_settings {
   bool powerDownQwiicBusBetweenReads = true; // For the SparkFun (red) board: default to disabling Qwiic power during sleep. (Qwiic power is always disabled during powerDown on v10 hardware.)
 #endif
   uint32_t qwiicBusMaxSpeed = 100000; // 400kHz with no pull-ups can cause issues. Default to 100kHz. User can change to 400 if required.
-  int  qwiicBusPowerUpDelayMs = 250; // This is the minimum delay between the qwiic bus power being turned on and communication with the qwiic devices being attempted
+  int  qwiicBusPowerUpDelayMs = 1000; // This is the minimum delay between the qwiic bus power being turned on and communication with the qwiic devices being attempted
   bool printMeasurementCount = false;
   bool enablePwrLedDuringSleep = true;
   bool logVIN = false;
@@ -530,7 +530,7 @@ struct struct_settings {
   float vinCorrectionFactor = 1.47; //Correction factor for the VIN measurement; to compensate for the divider impedance
   bool useGPIO32ForStopLogging = false; //If true, use GPIO as a stop logging button
   uint32_t qwiicBusPullUps = 1; //Default to 1.5k I2C pull-ups - internal to the Artemis
-  bool outputSerial = false; // Output the sensor data on the TX pin
+  bool outputSerial = true; // Output the sensor data on the TX pin
   uint8_t zmodemStartDelay = 20; // Wait for this many seconds before starting the zmodem file transfer
   bool enableLowBatteryDetection = false; // Low battery detection
   float lowBatteryThreshold = 3.4; // Low battery voltage threshold (Volts)

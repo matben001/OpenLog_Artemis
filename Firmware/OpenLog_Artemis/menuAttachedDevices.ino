@@ -3215,6 +3215,11 @@ void menuConfigure_BNO08x(void *configPtr)
     SerialPrint(F("5) Log Quaternion: "));
     if (sensorSetting->logQuat == true) SerialPrintln(F("Enabled"));
     else SerialPrintln(F("Disabled"));
+
+    //linear accel
+    SerialPrint(F("6) Log Linear Acceleration: "));
+    if (sensorSetting->logLinAccel == true) SerialPrintln(F("Enabled"));
+    else SerialPrintln(F("Disabled"));
     
     
   }

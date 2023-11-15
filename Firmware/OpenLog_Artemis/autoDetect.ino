@@ -293,7 +293,7 @@ bool addDevice(deviceType_e deviceType, uint8_t address, uint8_t muxAddress, uin
       break;
     case DEVICE_BNO08x:
       {
-        temp->classPtr = new BNO080;
+        temp->classPtr = new Adafruit_BNO08x;
         temp->configPtr = new struct_BNO08x;
       }
       break;
@@ -614,12 +614,18 @@ bool beginQwiicDevices()
         break;
       case DEVICE_BNO08x:
         {
-          BNO080 *tempDevice = (BNO080 *)temp->classPtr;
+          Adafruit_BNO08x *tempDevice = (Adafruit_BNO08x *)temp->classPtr;
           struct_BNO08x *nodeSetting = (struct_BNO08x *)temp->configPtr; //Create a local pointer that points to same spot as node does
           if (nodeSetting->powerOnDelayMillis > 1000) qwiicPowerOnDelayMillis = nodeSetting->powerOnDelayMillis; // Increase qwiicPowerOnDelayMillis if required
           //
-          if (tempDevice->begin()) //Wire port, address
+          SerialPrintf2("BNO08x  found attempt%d\r\n",temp->address);
+                    
+          if (tempDevice->begin_I2C(temp->address, &qwiic) == true){
+            SerialPrintf1("BNO08x  found 2x");
+
             temp->online = true;
+
+          } //Wire port, address
         }
         break;
       default:
@@ -999,11 +1005,24 @@ void configureDevice(node * temp)
     case DEVICE_BNO08x:
       {
         //todo: add configuration options
-        BNO080 *sensor = (BNO080 *)temp->classPtr;
+        Adafruit_BNO08x *sensor = (Adafruit_BNO08x *)temp->classPtr;
         struct_BNO08x *sensorSetting = (struct_BNO08x *)temp->configPtr;
-
-        sensor->enableRotationVector(50);
+        SerialPrintf1("Rotation Vector configure attemp")
+        if (!sensor->enableReport(SH2_ROTATION_VECTOR, (uint16_t)(settings.usBetweenReadings))) {
+          SerialPrintf1("Could not enable rotation vector");
+        }else{
+          SerialPrintf1("Rotation Vector configure")
+        }
+        //enable linear acceleration
+        if(!sensor->enableReport(SH2_LINEAR_ACCELERATION, (uint16_t)(settings.usBetweenReadings))){
+          SerialPrintf1("Could not enable linear acceleration");
+        }else{
+          SerialPrintf1("Linear acceleration configure")
+        }
+        
+        
       }
+    break;
     default:
       SerialPrintf3("configureDevice: Unknown device type %d: %s\r\n", deviceType, getDeviceName((deviceType_e)deviceType));
       break;
@@ -1612,22 +1631,15 @@ deviceType_e testDevice(uint8_t i2cAddress, uint8_t muxAddress, uint8_t portNumb
     case 0x4A:
     case 0x4B:
       {
-        BNO080 sensor;
+        Adafruit_BNO08x sensor;
         //print to serial monitor if the sensor is found
         //i2cAddress, &qwiic
-        /*if (sensor.begin_I2C(i2cAddress, &qwiic)==true)
-        {
+      //if (sensor.begin_I2C(i2cAddress, &qwiic)==true)
+        //{
+          //TODO WEIRD ???? when init twice
           Serial.println("BNO08x  found");
           return (DEVICE_BNO08x);
-        }*/
-        if (sensor.begin() == false)
-          {
-            Serial.println(F("BNO080 not detected at default I2C address. Check your jumpers and the hookup guide. Freezing..."));
-            while (1)
-              ;
-          }
-        
-          
+        //}
 
       }
       break;

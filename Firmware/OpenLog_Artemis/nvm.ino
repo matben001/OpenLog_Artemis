@@ -1607,6 +1607,7 @@ bool parseDeviceLine(char* str) {
           else
             Serial.printf("Unknown device setting: %s\r\n", deviceSettingName);
           }
+        break;
       default:
         SerialPrintf2("Unknown device type: %d\r\n", deviceType);
         SerialFlush();
